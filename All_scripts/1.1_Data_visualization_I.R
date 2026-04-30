@@ -17,9 +17,6 @@
 
 # Any line starting with a hash-tag (#) is a comment - just text!
 # Comments help you document your code and leave notes for yourself.
-# Try to make a new line below and write a hashtag followed by a message.
-# This is my first comment in R!
-
 
 # Now, let's try to run some code! To run code, move your
 # cursor to the line you want to run and press CTRL+Enter (Windows)
@@ -29,7 +26,7 @@ print("Hello World")
 
 # Can you see the output in the Console below? Good! Let's try
 # some more commands. Just run each line and see what happens.
-print("Welcome to NCBS 2025, Bioinformatics and Genomics Workshop!")
+print("Welcome to Data Science 2026!")
 
 # In R, we can store information in variables using the <- operator.
 # Let's create a variable called 'my_number' and assign it the value 42:
