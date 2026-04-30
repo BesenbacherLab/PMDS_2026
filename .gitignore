@@ -3,7 +3,7 @@
 .RData
 .Ruserdata
 *.DS_Store
-project.Rproj
+*.Rproj
 
 #Solutions
 Plots

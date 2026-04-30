@@ -14,18 +14,24 @@ There will be hands-on exercises throughout the course. Exercise scripts are nam
 The exercises will be added graduately to this git repository.
 If you work on your own machine you will need to have git install on you machine to easily get the changes to this repo.
 
+## Working on posit cloud.
+On posit cload you can simply click the PMDS_2026 project to get your own copy.
+
 ## Working on your own machine
 
-### Install git on your own machine
+### Install Rstudio and git on your own machine
+
+If you do not already have Rstudio installed you can download it here:
+https://posit.co/download/rstudio-desktop
+
 If you do not have git installed on your machine you can install it by following this guide: [Install Git](https://github.com/git-guides/install-git).
+
+### Create new R project from Rstudio
+In Rstudio choose File -> New Project -> Version Control -> git and use this repository URL:
+https://github.com/BesenbacherLab/PMDS_2026.git
 
 ### Install R packages in own machine:
 To run the scripts on your own machine, you will need a set of packages. For most users, these can be installed swiftly by the code in "INSTALL_PACKAGES.R". If you use the Posit Cloud project then these should already be installed.
 
-### Get new exercises
-To get new the new exercises when the become available you can update your local version of this repo using this terminal command in the directory:
-```
-git pull
-```
-
-## Working on Posit Cloud
+## Get new exercises using git
+To get new the new exercises when the become available you can update your local version of this repo by clicking on the git tab in the upper right corner and then clicking "pull".
