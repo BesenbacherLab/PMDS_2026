@@ -1,0 +1,94 @@
+---
+title: "Quarto Mini Demo: Penguins"
+subtitle: "Markdown, R, tables, figures, math, callouts, and diagrams in one short report"
+author: "ChatGPT and Jakob Skou Pedersen"
+date: 2026-05-07
+format:
+  html:
+    toc: true
+    code-fold: true
+    theme: cosmo
+  docx: default
+  pdf: default
+execute:
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(tidyverse)
+library(knitr)
+library(palmerpenguins)
+
+data <- penguins |> drop_na(species, island, bill_length_mm, flipper_length_mm, body_mass_g)
+```
+
+## Why Quarto?
+
+Quarto lets us combine **explanation**, *code*, output, and mathematical notation in one plain-text file. This document uses the `palmerpenguins` data set, which contains `r nrow(data)` complete penguin observations from `r n_distinct(data$species)` species.
+
+::: {.callout-tip}
+## Reproducible workflow
+Change the code or data, then render again. The numbers, table, and figure update automatically.
+:::
+
+We will use a simple linear model idea:
+
+$$
+\text{body mass}_i = \beta_0 + \beta_1 \times \text{flipper length}_i + \varepsilon_i
+$$
+
+## A small summary table
+
+```{r}
+#| label: tbl-summary
+#| tbl-cap: "Mean penguin measurements by species."
+data |>
+  group_by(species) |>
+  summarise(
+    n = n(),
+    mean_bill_mm = mean(bill_length_mm),
+    mean_flipper_mm = mean(flipper_length_mm),
+    mean_mass_g = mean(body_mass_g),
+    .groups = "drop"
+  ) |>
+  mutate(across(where(is.numeric), round, 1)) |>
+  kable()
+```
+
+## A figure with a caption
+
+```{r}
+#| label: fig-flipper-mass
+#| fig-cap: "Larger flippers tend to be associated with higher body mass."
+#| fig-alt: "Scatterplot of flipper length versus body mass, colored by penguin species, with one fitted trend line."
+ggplot(data, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
+  geom_point(alpha = 0.75) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    x = "Flipper length (mm)",
+    y = "Body mass (g)",
+    color = "Species"
+  ) +
+  theme_minimal()
+```
+
+As shown in @fig-flipper-mass, the relationship is positive for all three species. You can also refer to @tbl-summary when comparing species averages.
+
+## A tiny workflow diagram
+
+```{mermaid}
+flowchart LR
+  A[Raw data] --> B[Clean with tidyverse]
+  B --> C[Summarise and plot]
+  C --> D[Render HTML / PDF / Word]
+```
+
+## Try these edits
+
+1. Change `theme: cosmo` to `theme: flatly` in the YAML header.
+2. Set `code-fold: false` and render again.
+3. Add `pdf: default` under `format:` and try rendering to PDF.
+4. Replace `geom_point()` with `geom_jitter()`.
