@@ -51,7 +51,7 @@ chd_full <- read_rds("Data/chd_full.rds")
 glimpse(chd_full)
 
 # Try skim() for a more detailed overview:
-chd_full %>% 
+chd_full |> 
   skimr::skim()
 
 # EXERCISE A: Compare glimpse() and skim()
@@ -71,8 +71,8 @@ chd_full %>%
 
 # EXERCISE B: Check proportions of patients with heart disease
 # Replace ? with 'chdfate'
-chd_full %>% 
-  dplyr::count(?) %>% 
+chd_full |> 
+  dplyr::count(?) |> 
   mutate(proportion = n / sum(n))
 
 # CHECKPOINT: Is the dataset balanced? Or do we have many more of one class?
@@ -128,7 +128,7 @@ var_names <- names(chd_train)[-1]
 
 # EXERCISE F: Create a pairwise plot matrix
 # This shows all variables plotted against each other
-chd_train %>%
+chd_train |>
   ggpairs(columns = var_names)
 
 # Note: This may take a minute to generate!
@@ -178,7 +178,7 @@ chd_train %>%
 
 # Example: Predict BMI from systolic blood pressure and sex
 lm_fit <- 
-  linear_reg() %>% 
+  linear_reg() |> 
   fit(bmi ~ sbp + sex, data = chd_train)
 
 # View the model:
@@ -209,7 +209,7 @@ tidy(lm_fit)
 # Add more variables to the formula. For example, try:
 # bmi ~ sbp + sex + age + scl
 lm_fit2 <- 
-  linear_reg() %>% 
+  linear_reg() |> 
   fit(bmi ~ sbp + sex + ?, data = chd_train)
 
 tidy(lm_fit2)
@@ -225,7 +225,7 @@ tidy(lm_fit2)
 
 # EXERCISE C: Fit a model with all predictors
 lm_fit_full <- 
-  linear_reg() %>% 
+  linear_reg() |> 
   fit(bmi ~ . - id, data = chd_train)
 
 tidy(lm_fit_full)
@@ -245,7 +245,7 @@ tidy(lm_fit_full)
 # A coefficient plot (dot-and-whisker plot) helps visualize model results.
 
 # Prepare data: remove intercept for clearer visualization
-coef_data <- tidy(lm_fit_full) %>%
+coef_data <- tidy(lm_fit_full) |>
   filter(term != "(Intercept)")
 
 # Create the plot:
@@ -337,7 +337,7 @@ ggplot(chd_test_predictions, aes(x = ?)) +
 # EXERCISE I: Calculate Root Mean Squared Error (RMSE)
 # RMSE measures the average prediction error in the same units as BMI.
 # Replace first ? with 'bmi', second ? with '.pred'
-chd_test_predictions %>% 
+chd_test_predictions |> 
   rmse(truth = ?, estimate = ?)
 
 # INTERPRETATION:
@@ -347,8 +347,8 @@ chd_test_predictions %>%
 # Lower RMSE = better model performance!
 
 # Additional metrics you can try:
-# - R-squared: chd_test_predictions %>% rsq(truth = bmi, estimate = .pred)
-# - Mean Absolute Error: chd_test_predictions %>% mae(truth = bmi, estimate = .pred)
+# - R-squared: chd_test_predictions |> rsq(truth = bmi, estimate = .pred)
+# - Mean Absolute Error: chd_test_predictions |> mae(truth = bmi, estimate = .pred)
 
 ################################################################################
 #### KEY TAKEAWAYS ####

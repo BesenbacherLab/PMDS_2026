@@ -57,8 +57,8 @@ chd_train <- training(chd_split)
 chd_test <- testing(?)  # Replace ? with 'chd_split'
 
 # Verify the split maintains class balance (replace ? with 'chdfate'):
-chd_train %>% count(chdfate) %>% mutate(prop = n/sum(n))
-chd_test %>% count(?) %>% mutate(prop = n/sum(n))
+chd_train |> count(chdfate) |> mutate(prop = n/sum(n))
+chd_test |> count(?) |> mutate(prop = n/sum(n))
 
 ################################################################################
 #### SECTION 4: Data Preprocessing with Recipes ####
@@ -69,12 +69,12 @@ chd_test %>% count(?) %>% mutate(prop = n/sum(n))
 
 # Create a preprocessing recipe:
 chd_rec <- 
-  recipe(chdfate ~ ., data = chd_train) %>%          # Define formula and data
-  update_role(id, new_role = "ID") %>%               # Mark 'id' as ID, not predictor
-  step_naomit(all_predictors(), all_outcomes()) %>%  # Remove rows with missing values
-  step_dummy(all_nominal_predictors()) %>%           # Convert categorical to binary (0/1)
-  step_zv(all_predictors()) %>%                      # Remove zero-variance predictors
-  step_center(all_numeric_predictors()) %>%          # Center: subtract mean (mean = 0)
+  recipe(chdfate ~ ., data = chd_train) |>          # Define formula and data
+  update_role(id, new_role = "ID") |>               # Mark 'id' as ID, not predictor
+  step_naomit(all_predictors(), all_outcomes()) |>  # Remove rows with missing values
+  step_dummy(all_nominal_predictors()) |>           # Convert categorical to binary (0/1)
+  step_zv(all_predictors()) |>                      # Remove zero-variance predictors
+  step_center(all_numeric_predictors()) |>          # Center: subtract mean (mean = 0)
   step_scale(all_numeric_predictors())               # Scale: divide by SD (SD = 1)
 
 # WHY THESE STEPS?
@@ -121,7 +121,7 @@ glimpse(chd_test_baked)
 
 # Define the model:
 lr_model <- 
-  logistic_reg() %>% 
+  logistic_reg() |> 
   set_engine("glm")  # General Linear Model engine
 
 ################################################################################
@@ -135,8 +135,8 @@ lr_model <-
 # - Easier to deploy in production
 
 chd_workflow <- 
-  workflow() %>% 
-  add_model(lr_model) %>% 
+  workflow() |> 
+  add_model(lr_model) |> 
   add_recipe(?)  # We use the un-baked recipe object from above
 
 chd_workflow
@@ -151,14 +151,14 @@ chd_workflow
 # Fit the model using the workflow:
 # This will automatically prep the recipe and bake the data
 chd_fit <- 
-  chd_workflow %>% 
+  chd_workflow |> 
   fit(data = chd_train)
 
 chd_fit
 
 # Extract coefficients in a tidy format:
-model_coefs <- chd_fit %>% 
-  extract_fit_parsnip() %>% 
+model_coefs <- chd_fit |> 
+  extract_fit_parsnip() |> 
   tidy()
 
 model_coefs
@@ -241,13 +241,13 @@ ggplot(chd_aug, aes(x = chdfate, y = .pred_TRUE, fill = chdfate)) +
 # - Random classifier: diagonal line (area = 0.5)
 
 # Plot ROC curve:
-chd_aug %>% 
-  roc_curve(truth = chdfate, .pred_TRUE) %>% 
+chd_aug |> 
+  roc_curve(truth = chdfate, .pred_TRUE) |> 
   autoplot() +
   labs(title = "ROC Curve for Heart Disease Prediction")
 
 # Calculate AUC (Area Under Curve):
-auc_result <- chd_aug %>% 
+auc_result <- chd_aug |> 
   roc_auc(truth = chdfate, .pred_TRUE)
 
 auc_result
@@ -311,7 +311,7 @@ cv_folds
 
 set.seed(456)
 chd_fit_cv <- 
-  chd_workflow %>% 
+  chd_workflow |> 
   fit_resamples(cv_folds)
 
 chd_fit_cv
@@ -330,10 +330,10 @@ cv_metrics
 cv_metrics
 
 # Test set performance:
-test_auc <- chd_aug %>% 
+test_auc <- chd_aug |> 
   roc_auc(truth = chdfate, .pred_TRUE)
 
-test_accuracy <- chd_aug %>% 
+test_accuracy <- chd_aug |> 
   accuracy(truth = chdfate, .pred_class)
 
 test_auc
