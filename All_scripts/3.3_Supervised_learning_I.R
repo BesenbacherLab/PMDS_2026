@@ -93,7 +93,7 @@ chd_split <- initial_split(data = ?, prop = 0.80)
 
 # EXERCISE C: Create training and testing datasets
 chd_train <- training(chd_split)
-chd_test <- testing(chd_split)  # Replace ? with 'chd_split'
+chd_test <- testing(?)  # Replace ? with 'chd_split'
 
 # Examine the split:
 chd_train  # Training data
