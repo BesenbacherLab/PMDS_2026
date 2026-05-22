@@ -1,0 +1,187 @@
+---
+title: "Survival Analysis"
+format: html
+editor: visual
+---
+
+The examples shown here are based on this longer tutorial about survival analysis in R: <https://www.emilyzabor.com/tutorials/survival_analysis_in_r_tutorial.html>
+
+## Packages
+
+We will use the following packages in the tutorial:
+
+```{r}
+library(tidyverse)
+library(survival)
+
+install.packages('ggsurvfit')
+install.packages('gtsummary')
+library(ggsurvfit)
+library(gtsummary)
+```
+
+## Example data
+
+We will use the lung data set from the {survival} package as example data. The data contain subjects with advanced lung cancer from the North Central Cancer Treatment Group. We will focus on the following variables:
+
+-   time: Observed survival time in days
+-   status: censoring status 1=censored, 2=dead
+-   sex: 1=Male, 2=Female
+
+Note that the status is coded in a non-standard way in this data set. Typically you will see 1=event, 0=censored. Let’s recode it to avoid confusion:
+
+```{r}
+lung2 <- 
+  lung %>% 
+  mutate(
+    status = recode(status, `1` = 0, `2` = 1)
+  )
+head(lung2)
+```
+
+## Creating survival object and curves
+
+The `Surv()` function from the `survival` package creates a survival object for use as the response in a model formula. There will be one entry for each subject that is the survival time, which is followed by a + if the subject was censored. Let’s look at the first 10 observations:
+
+```{r}
+Surv(lung2$time, lung2$status)[1:10]
+```
+
+We see that subject 1 had an event at time 306 days, subject 2 had an event at time 455 days, subject 3 was censored at time 1010 days, etc.
+
+The `survfit()` function creates survival curves using the Kaplan-Meier method based on a formula:
+
+```{r}
+sf <- survfit(Surv(time, status) ~ 1, data = lung2) 
+summary(sf)
+```
+
+## Plotting Kaplan-Meier Curves
+
+we can use the `ggsurvfit()` function to plot the survfit object:
+
+```{r }
+sf %>% ggsurvfit() 
+```
+
+We can also add confidence intervals and a table showing the number of individuals at risk at different times:
+
+```{r}
+sf %>%
+  ggsurvfit() + add_confidence_interval() + add_risktable()
+```
+
+## The cox regression model
+
+The Cox regression model is a semi-parametric model that can be used to fit univariate or multivariate regression models that have survival outcomes. We can fit regression models for survival data using the coxph() function from the `survival` package, which takes a `Surv()` object on the left hand side and has standard syntax for regression formulas in R on the right hand side.
+
+```{r coxph}
+coxph(Surv(time, status) ~ sex, data = lung2)
+```
+
+We can obtain tables of results using the `tbl_regression()` function from the `gtsummary` package, with the option to exponentiate set to TRUE to return the hazard ratio rather than the log hazard ratio:
+
+```{r tbl_regression}
+coxph(Surv(time, status) ~ sex, data = lung2) %>% 
+  tbl_regression(exp = TRUE) 
+```
+
+### Exercises
+
+## Exercise 1
+
+The code below produces the Kaplan-Meier curve for all the data we saw earlier. Change the formula in survfit so that we get separate curves for males and females.
+
+HINT: you need to change the formula in the survfit function and add sex as an explanatory variable by replacing "1" with sex.
+
+```{r ex1}
+survfit(Surv(time, status) ~ 1, data = lung2) %>%
+  ggsurvfit()
+```
+
+## Exercise 2
+
+Besides sex the lung data set includes these variables:
+
+-   `ph.ecog`: ECOG performance score as rated by the physician. 0=asymptomatic, 1= symptomatic but completely ambulatory, 2= in bed \<50% of the day, 3= in bed \> 50% of the day but not bedbound, 4 = bedbound
+-   `ph.karno`: Karnofsky performance score (bad=0-good=100) rated by physician
+-   `pat.karno`: Karnofsky performance score as rated by patient
+-   `meal.cal`: Calories consumed at meals
+-   `wt.loss`: Weight loss in last six months (pounds)
+
+Change the code below so that you include all these variant in a multivariate cox regression model.
+
+HINT: you need to change the formula in the coxph function and add all the mentioned variables as explanatory variables. (Use + between the variables names)
+
+```{r ex2}
+coxph(Surv(time, status) ~ sex, data = lung2) |> 
+  tbl_regression(exp = TRUE) 
+```
+
+## Exercise 3
+
+Run the code below to load a new data set about oral cancer
+
+```{r orca}
+orca <- read.table("http://www.stats4life.se/data/oralca.txt", stringsAsFactors = TRUE)
+```
+
+The data set contains the following variables:
+
+- `id`: a sequential number,
+- `sex`: sex, a factor with categories 1 = “Female”, 2 = “Male”,
+- `age`: age (years) at the date of diagnosing the cancer,
+- `stage`: TNM stage of the tumor (factor): 1 = “I”, …, 4 = “IV”, 5 = “unkn”
+- `time`: follow-up time (in years) since diagnosis until death or censoring,
+- `event`: event ending the follow-up (factor with three levels: "Alive", "Oral ca. death" and "Other death")
+
+Replace the question marks in the code below so that you get the Kaplan-Meier curve for overall survival. Ie. you count both "Oral ca. death" and "Other death" as an event and only "Alive as censored.
+
+HINT: use 1 for events and 0 for censored.
+
+```{r ex3}
+orca2 <- mutate(orca, 
+                overall_survival_status = 
+                  recode(event, 
+                         "Alive" = ?,
+                         "Oral ca. death" = ?,
+                         "Other death" = ?)) 
+
+survfit(Surv(time, overall_survival_status) ~ 1, data = orca2) %>%
+    ggsurvfit()
+```
+
+## Exercise 4
+
+Replace the question marks in the code below so that you get the Kaplan-Meier curve for cancer specific survival. Ie. you count only "Oral ca. death" as an event and "Alive" or "Other death" as censored.
+
+```{r ex4}
+orca2 <- mutate(orca2, 
+                cs_survival_status = 
+                  recode(event,
+                         "Alive" = ?,
+                         "Oral ca. death" = ?,
+                         "Other death" = ?))
+
+survfit(Surv(time, cs_survival_status) ~ 1, data = orca2) %>%
+    ggsurvfit()
+```
+
+## Exercise 5
+
+Change the code below to show a curve for each value of the stage variable:
+
+```{r ex5}
+survfit(Surv(time, cs_survival_status) ~ 1, data = orca2) %>%
+    ggsurvfit()
+```
+
+## Exercise 6
+
+Compare the univariate coxph regressions below. Which variable has the most significant effect on cancer specific survival? age, sex or stage?
+
+```{r ex6}
+coxph(Surv(time, cs_survival_status) ~ sex, data = orca2)
+coxph(Surv(time, cs_survival_status) ~ stage, data = orca2)
+coxph(Surv(time, cs_survival_status) ~ age, data = orca2)
+```
